@@ -21,6 +21,10 @@ const useAction = () => {
 		action:""
 	})
 	
+	useEffect(() => {
+		getList();
+	},[])
+	
 	//fetch uses useEffect. Note that useEffect CANNOT have async functions directly. We need to introduce an async function within useEffect and then use it.
 
 	useEffect(() => {

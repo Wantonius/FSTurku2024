@@ -1,0 +1,40 @@
+Luodaan frontend kirjastolle. Kirjasto on kolmen funktion REST API. Kirjat voi hakea, niitä voi lisätä ja niitä voi lainata ja palauttaa. 
+Tämä tapahtuu samassa osoitteessa PUT komennolla. Frontendissä tulee olla lista (table), jota voi filtteröidä loaned attribuutin mukaan.
+Voi siis katsoa kaikkia kirjoja, lainattuja kirjoja tai lainaamattomia kirjoja. Lisäksi tarvitaan form, jossa kirjoja voi lisätä. Seuraa
+Shopping Appin rakenneta. Käyttäkää joko Bootstrappiä tai jotain muuta teemakirjastoa. CSS:n saa toki tehdä myös itse.
+
+Book objekti
+{
+	id:number //backend antaa tämän
+	name:string //kirjan nimi
+	author:string //kirjailijan nimi
+	year:number //julkaisu vuosi
+	loaned:boolean //onko lainassa vai ei
+}
+
+Backendin REST API (localhost:3000)
+
+GET /api/books Hae kaikki kirjat
+POST /api/books Lisää uusi kirja
+PUT /api/books/:id lainaa tai palauta kirja riippuen sen nykyisestä tilasta
+
+Backend on server.js backend hakemistossa.
+
+Let's create a frontend for a library app. Library is a three function REST API backend. Books can be fetched, you can add new books and you can loan or return books. Frontend has to have two components. A table like in Shopping App where you can filter books by loaned status. So you can see all books, loaned books or just books that are available. Second component is a form to add new books. Follow the structure of Shopping App. Use Bootstrap or similar theme library or create CSS yourself
+
+Book object
+{
+	id:number //comes from database in backend
+	name:string //book name
+	author:string //author name
+	year:number //year published
+	loaned:boolean //loaned or not
+}
+
+Backend REST API (localhost:3000)
+
+GET /api/books Get all Books
+POST /api/books Add new Book
+PUT /api/books/:id Loan or return the book depending on current state
+
+Backend is server.js in backend folder

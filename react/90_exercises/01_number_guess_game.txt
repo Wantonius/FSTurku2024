@@ -1,0 +1,24 @@
+Numeronarvauspeli
+
+Arvataan numeroa 1-100 väliltä. Peli laskee arvausten määrän. 
+Arvauksen jälkeen peli ilmoittaa, että oliko arvaus liian suuri 
+vai liian pieni. Jos arvaa 75 ja arvaus on liian suuri peli estää
+suuremman luvun arvaamisen ja sama liian pienelle. Peli estää 
+myös 1-100 ulkopuolelta arvaamisen sekä kirjaimet (isNaN toimii).
+Peli juhlii (päätä miten), kun arvaat oikein. 
+Lisää myös Reset nappula, jolla voi aloittaa 
+pelin alusta.
+
+Bonus: Käytä React Routeria ja luo Start Page ja Game Page ja liiku niiden välillä hyödyntäen useNavigate-hookkia
+
+Number Guess Game
+
+Guess a number between 1-100. Game counts the number of guesses.
+After a guess game informs the player if the guess was too low
+or too high. If the guess is too high the game stops you guessing
+higher next time and same with low guesses. So the range of suitable
+guesses gets smaller when player gets closer to the answer. Game also
+stops guesses that are not numbers (isNaN). Game celebrates when player wins
+and tells the number of guesses. Create also a Reset button.
+
+Bonus: Use React Router and create Start Page and Game Page and use useNavigate()-hook to navigate between these pages.

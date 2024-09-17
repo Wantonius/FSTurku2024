@@ -1,5 +1,5 @@
 import React,{useState} from 'react';
-import ShoppingItem from '../model/ShoppingItem';
+import ShoppingItem from '../models/ShoppingItem';
 
 interface Props {
 	item:ShoppingItem;

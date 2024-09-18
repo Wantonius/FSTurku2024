@@ -25,6 +25,13 @@ mongoose.set("toJSON",{virtuals:true});
 
 //MIDDLEWARES AND HELPERS
 
+const time_to_live_diff = 3600000;
+
+createToken = () => {
+	let token = crypto.randomBytes(64);
+	return token.toString("hex");
+}
+
 //LOGIN API
 
 app.post("/register",function(req,res) {
@@ -55,6 +62,48 @@ app.post("/register",function(req,res) {
 		})
 	})
 })
+
+app.post("/login",function(req,res) {
+	if(!req.body) {
+		return res.status(400).json({"Message":"Bad request"});
+	}
+	if(!req.body.username || !req.body.password) {
+		return res.status(400).json({"Message":"Bad request"});
+	}
+	if(req.body.username.length < 4 || req.body.password.length < 8) {
+		return res.status(400).json({"Message":"Bad request"});
+	}
+	userModel.findOne({"username":req.body.username}).then(function(user) {
+		if(!user) {
+			return res.status(401).json({"Message":"Unauthorized"})
+		}
+		bcrypt.compare(req.body.password,user.password,function(err,success) {
+			if(err) {
+				console.log("Failed to compare passwords. Reason",err);
+				return res.status(500).json({"Message":"Internal server error"})
+			}
+			if(!success) {
+				return res.status(401).json({"Message":"Unauthorized"});
+			}
+			let token = createToken();
+			let now = Date.now();
+			let session = new sessionModel({
+				user:req.body.username,
+				token:token,
+				ttl:now+time_to_live_diff
+			});
+			session.save().then(function() {
+				return res.status(200).json({"token":token});
+			}).catch(function(err) {
+				return res.status(500).json({"Message":"Internal server error"})
+			})
+		})
+	}).catch(function(err) {
+		return res.status(500).json({"Message":"Internal server error"})
+	})
+
+})
+
 
 app.use("/api",shoppingRoute);
 

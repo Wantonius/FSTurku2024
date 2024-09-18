@@ -7,7 +7,8 @@ const router = express.Router();
 //REST API
 
 router.get("/shopping",function(req,res) {
-	itemModel.find().then(function(items) {
+	let query = {"user":req.session.user}
+	itemModel.find(query).then(function(items) {
 		return res.status(200).json(items)
 	}).catch(function(err) {
 		console.log("Failed finding items, Reason",err)
@@ -23,6 +24,7 @@ router.post("/shopping",function(req,res) {
 		return res.status(400).json({"Message":"Bad request"});
 	}
 	let item = new itemModel({
+		user:req.session.user,
 		type:req.body.type,
 		count:req.body.count,
 		price:req.body.price
@@ -36,7 +38,7 @@ router.post("/shopping",function(req,res) {
 })
 
 router.delete("/shopping/:id",function(req,res) {
-	itemModel.deleteOne({"_id":req.params.id}).then(function(){
+	itemModel.deleteOne({"_id":req.params.id,"user":req.session.user}).then(function(){
 		return res.status(200).json({"Message":"Success"});
 	}).catch(function(err) {
 		console.log("Failed deleting items, Reason",err)
@@ -52,11 +54,12 @@ router.put("/shopping/:id",function(req,res) {
 		return res.status(400).json({"Message":"Bad request"});
 	}
 	let item = {
+		user:req.session.user,
 		type:req.body.type,
 		count:req.body.count,
 		price:req.body.price
 	}
-	itemModel.replaceOne({"_id":req.params.id},item).then(function() {
+	itemModel.replaceOne({"_id":req.params.id,"user":req.session.user},item).then(function() {
 		return res.status(200).json({"Message":"Success"})
 	}).catch(function(err) {
 		console.log("Failed editing items, Reason",err)

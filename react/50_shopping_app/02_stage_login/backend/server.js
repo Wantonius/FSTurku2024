@@ -32,6 +32,39 @@ createToken = () => {
 	return token.toString("hex");
 }
 
+isUserLogged = (req,res,next) => {
+	if(!req.headers.token) {
+		return res.status(403).json({"Message":"Forbidden"});
+	}
+	sessionModel.findOne({"token":req.headers.token}).then(function(session) {
+		if(!session) {
+			return res.status(403).json({"Message":"Forbidden"});
+		}
+		let now = Date.now();
+		if(now > session.ttl) {
+			sessionModel.deleteOne({"_id":session._id}).then(function() {
+				return res.status(403).json({"Message":"Forbidden"})
+			}).catch(function(err) {
+				console.log("Failed to delete old session. Reason",err);
+				return res.status(403).json({"Message":"Forbidden"})
+			})
+		} else {
+			session.ttl = now + time_to_live_diff;
+			req.session = {}
+			req.session.user = session.user;
+			session.save().then(function() {
+				return next();
+			}).catch(function(err) {
+				console.log("Failed to update session. Reason",err);
+				return next();
+			})
+		}
+	}).catch(function(err) {
+		console.log("Failed to find session in filter. Reason",err);
+		return res.status(403).json({"Message":"Forbidden"});
+	})
+}
+
 //LOGIN API
 
 app.post("/register",function(req,res) {
@@ -104,8 +137,19 @@ app.post("/login",function(req,res) {
 
 })
 
+app.post("/logout",function(req,res) {
+	if(!req.headers.token) {
+		return res.status(404).json({"Message":"Not found"})
+	}
+	sessionModel.deleteOne({"token":req.headers.token}).then(function() {
+		return res.status(200).json({"Message":"Success"});
+	}).catch(function(err) {
+		console.log("Failed to remove logout session with token "+req.headers.token+". Reason",err);
+		return res.status(500).json({"Message":"Internal server error"})
+	})
+})
 
-app.use("/api",shoppingRoute);
+app.use("/api",isUserLogged,shoppingRoute);
 
 app.listen(3000);
 

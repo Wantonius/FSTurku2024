@@ -1,6 +1,6 @@
 import {useState,useEffect,useContext} from 'react';
 import ShoppingItem from '../models/ShoppingItem';
-import useAppState from '../context/useAppState';
+import useAppState from './useAppState';
 import User from '../models/User';
 import ActionContext from '../context/ActionContext';
 import * as actionConstants from '../types/actionConstants';
@@ -31,7 +31,7 @@ const useAction = () => {
 	const setError = (error:string) => {
 		dispatch({
 			type:actionConstants.REGISTER_FAILED,
-			error:error
+			payload:error
 		})
 	}
 	
@@ -99,15 +99,15 @@ const useAction = () => {
 						})
 						return;
 					case "login":
-						let token = await response.json();
-						if(!token) {
+						let token2 = await response.json();
+						if(!token2) {
 							dispatch({
 								type:actionConstants.LOGIN_FAILED,
 								payload:"Failed to parse login information. Try again later."
 							})
 							return;
 						}
-						let data = token as Token;
+						let data = token2 as Token;
 						dispatch({
 							type:actionConstants.LOGIN_SUCCESS,
 							payload:data.token
@@ -206,7 +206,7 @@ const useAction = () => {
 				method:"POST",
 				headers:{
 					"Content-Type":"application/json",
-					"token":state.token
+					"token":token
 				},
 				body:JSON.stringify(item)
 			}),
@@ -219,7 +219,7 @@ const useAction = () => {
 			request:new Request("/api/shopping/"+id,{
 				method:"DELETE",
 				headers:{
-					"token":state.token
+					"token":token
 				}
 			}),
 			action:"removeitem"
@@ -232,7 +232,7 @@ const useAction = () => {
 				method:"PUT",
 				headers:{
 					"Content-Type":"application/json",
-					"token":state.token
+					"token":token
 				},
 				body:JSON.stringify(item)
 			}),
@@ -255,7 +255,10 @@ const useAction = () => {
 	}
 	
 	const login = (user:User) => {
-		setUser(user.username);
+		dispatch({
+			type:actionConstants.SET_USER,
+			payload:user.username
+		})
 		setUrlRequest({
 			request:new Request("/login",{
 				method:"POST",
@@ -273,14 +276,14 @@ const useAction = () => {
 			request:new Request("/logout",{
 				method:"POST",
 				headers:{
-					"token":state.token
+					"token":token
 				}
 			}),
 			action:"logout"
 		})
 	}
 	
-	return {state,add,remove,edit,register,login,logout,setError}
+	return {add,remove,edit,register,login,logout,setError}
 }
 
 export default useAction;

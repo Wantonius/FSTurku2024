@@ -27,52 +27,12 @@ const useAction = () => {
 	 const {token} = useAppState();
 	
 	//STATE HELPERS
-
-	
-	
-	const setLoading = (loading:boolean) => {
-		setState((state) => {
-			return {
-				...state,
-				error:"",
-				loading:loading
-			}
-		})
-	}
 	
 	const setError = (error:string) => {
-		setState((state) => {
-			let tempState = {
-				...state,
-				error:error
-			}
-			saveToStorage(tempState);
-			return tempState;
+		dispatch({
+			type:actionConstants.REGISTER_FAILED,
+			error:error
 		})
-	}
-	
-	const setUser = (user:string) => {
-		setState((state) => {
-			let tempState = {
-				...state,
-				user:user
-			}
-			saveToStorage(tempState);
-			return tempState;
-		})
-	}
-	
-	const clearState = (error:string) => {
-		let tempState = {
-			list:[],
-			isLogged:false,
-			token:"",
-			loading:false,
-			error:error,
-			user:""
-		}
-		saveToStorage(tempState);
-		setState(tempState);
 	}
 	
 	//Fetch stuff from backend
@@ -84,58 +44,89 @@ const useAction = () => {
 		}
 		
 		const fetchData = async () => {
-			setLoading(true);
+			dispatch({
+				type:actionConstants.LOADING
+			})
 			const response = await fetch(urlRequest.request);
-			setLoading(false);
+			dispatch({
+				type:actionConstants.STOP_LOADING
+			})
 			if(!response) {
-				clearState("Server did not respond. Logging you out.");
+				dispatch({
+					type:actionConstants.LOGOUT_FAILED,
+					payload:"Server never responded. Resetting."
+				})
 				return;
 			}
 			if(response.ok) {
 				switch(urlRequest.action) {
 					case "getlist":
 						let temp = await response.json();
+						if(!temp) {
+							dispatch({
+								type:actionConstants.FETCH_LIST_FAILED,
+								payload:"Failed to parse information. Try again later"
+							})
+							return;
+						}
 						let list:ShoppingItem[] = temp as ShoppingItem[]
-						setState((state) => {
-							let tempState = {
-								...state,
-								list:list
-							}
-							saveToStorage(tempState);
-							return tempState;
+						dispatch({
+							type:actionConstants.FETCH_LIST_SUCCESS,
+							payload:list
 						})
 						return;
 					case "additem":
-					case "removeitem":
+						dispatch({
+							type:actionConstants.ADD_ITEM_SUCCESS
+						})
+						getList(token);
+						return;
+					case "removeitem"
+						dispatch({
+							type:actionConstants.REMOVE_ITEM_SUCCESS
+						})
+						getList(token);
+						return;
 					case "edititem":
-						getList(state.token);
+						dispatch({
+							type:actionConstants.EDIT_ITEM_SUCCESS
+						})
+						getList(token);
 						return;
 					case "register":
-						setError("Register success!");
+						dispatch({
+							type:actionConstants.REGISTER_SUCCESS
+						})
 						return;
 					case "login":
 						let token = await response.json();
+						if(!token) {
+							dispatch({
+								type:actionConstants.LOGIN_FAILED,
+								payload:"Failed to parse login information. Try again later."
+							})
+							return;
+						}
 						let data = token as Token;
-						setState((state) => {
-							let tempState = {
-								...state,
-								token:data.token,
-								isLogged:true
-							}
-							saveToStorage(tempState);
-							return tempState;
+						dispatch({
+							type:actionConstants.LOGIN_SUCCESS,
+							payload:data.token
 						})
-						getList(data.token);
 						return;
 					case "logout":
-						clearState("");
+						dispatch({
+							type:actionConstants.LOGOUT_SUCCESS
+						})
 						return;
 					default:
 						return;
 				}
 			} else {
 				if(response.status === 403) {
-					clearState("Your session has expired!");
+					dispatch({
+						type:actionConstants.LOGOUT_FAILED,
+						payload:"Your session has expires. Logging you out."
+					})
 					return;
 				}
 				let errorMessage = "Server responded with a status "+response.status+" "+response.statusText
@@ -144,17 +135,46 @@ const useAction = () => {
 						if(response.status === 409) {
 							errorMessage = "Username already in use"
 						}
-						setError(errorMessage);
+						dispatch({
+							type:actionConstants.REGISTER_FAILED,
+							payload:errorMessage
+						})
 						return;
 					case "login":
+						dispatch({
+							type:actionConstants.LOGIN_FAILED,
+							payload:errorMessage
+						})
+						return;
 					case "getlist":
+						dispatch({
+							type:actionConstants.FETCH_LIST_FAILED,
+							payload:errorMessage
+						})
+						return;
 					case "additem":
+						dispatch({
+							type:actionConstants.ADD_ITEM_FAILED,
+							payload:errorMessage
+						})
+						return;
 					case "removeitem":
+						dispatch({
+							type:actionConstants.REMOVE_ITEM_FAILED,
+							payload:errorMessage
+						})
+						return;
 					case "edititem":
-						setError(errorMessage);
+						dispatch({
+							type:actionConstants.EDIT_ITEM_FAILED,
+							payload:errorMessage
+						})
 						return;
 					case "logout":
-						clearState("Server responded with an error. Logging you out.");
+						dispatch({
+							type:actionConstants.LOGOUT_FAILED,
+							payload:"Server responded with an error. Logging you out."
+						})
 						return;
 					default:
 						return;

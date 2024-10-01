@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import React,{useState} from 'react';
 import ShoppingItem from '../models/ShoppingItem';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
@@ -11,7 +11,9 @@ interface State {
 	editIndex:number;
 }
 
-
+interface SearchState {
+	search:string;
+}
 const ShoppingList = () => {
 	
 	const [state,setState] = useState<State>({
@@ -19,8 +21,12 @@ const ShoppingList = () => {
 		editIndex:-1
 	})
 	
-	const {list} = useAppState();
-	const {remove,edit} = useAction();
+	const [searchState,setSearchState] = useState<SearchState>({
+		search:""
+	})
+	
+	const {list,token} = useAppState();
+	const {remove,edit,getList} = useAction();
 	
 	const changeMode = (mode:string,index:number) => {
 		switch(mode) {
@@ -45,6 +51,19 @@ const ShoppingList = () => {
 			default:
 				return;
 		}
+	}
+	
+	const searchByType = () => {
+		getList(token,searchState.search);
+		setSearchState({
+			search:""
+		})
+	}
+	
+	const onChange = (event:React.ChangeEvent<HTMLInputElement>) => {
+		setSearchState({
+			search:event.target.value
+		})
 	}
 	
 	const removeItem = (id:string) => {
@@ -73,6 +92,17 @@ const ShoppingList = () => {
 		)
 	})
 	return(
+	<div style={{"margin":"auto","textAlign":"center"}}>
+		<div style={{"width":"30%","textAlign":"center","margin":"auto"}}>
+			<label htmlFor="search" className="form-label">Search by type</label>
+			<input type="text"
+					name="search"
+					id="search"
+					className="form-control"
+					onChange={onChange}
+					value={searchState.search}/>
+			<button onClick={searchByType} className="btn btn-secondary">Search</button>
+		</div>
 		<table className="table table-striped">
 			<thead>
 				<tr>
@@ -87,6 +117,7 @@ const ShoppingList = () => {
 			{shoppingItems}
 			</tbody>
 		</table>
+	</div>
 	)
 }
 

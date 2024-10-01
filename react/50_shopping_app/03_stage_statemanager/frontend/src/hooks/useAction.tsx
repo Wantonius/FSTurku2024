@@ -1,7 +1,9 @@
-import {useState,useEffect} from 'react';
+import {useState,useEffect,useContext} from 'react';
 import ShoppingItem from '../models/ShoppingItem';
-import {AppState} from '../types/states';
+import useAppState from '../context/useAppState';
 import User from '../models/User';
+import ActionContext from '../context/ActionContext';
+import * as actionConstants from '../types/actionConstants';
 
 interface UrlRequest {
 	request:Request;
@@ -14,19 +16,15 @@ interface Token {
 
 const useAction = () => {
 	
-	const [state,setState] = useState<AppState>({
-		list:[],
-		isLogged:false,
-		token:"",
-		loading:false,
-		error:"",
-		user:""
-	})
 	
 	const [urlRequest,setUrlRequest] = useState<UrlRequest>({
 		request:new Request("",{}),
 		action:""
 	})
+	
+	 const {dispatch} = useContext(ActionContext);
+	 
+	 const {token} = useAppState();
 	
 	//STATE HELPERS
 	const saveToStorage = (state:AppState) => {

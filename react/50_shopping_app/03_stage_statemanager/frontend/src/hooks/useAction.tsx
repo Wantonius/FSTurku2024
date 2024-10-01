@@ -27,20 +27,8 @@ const useAction = () => {
 	 const {token} = useAppState();
 	
 	//STATE HELPERS
-	const saveToStorage = (state:AppState) => {
-		sessionStorage.setItem("state",JSON.stringify(state));
-	}
+
 	
-	useEffect(() => {
-		let temp = sessionStorage.getItem("state");
-		if(temp) {
-			let state:AppState = JSON.parse(temp);
-			setState(state);
-			if(state.isLogged) {
-				getList(state.token);
-			}
-		}
-	},[])
 	
 	const setLoading = (loading:boolean) => {
 		setState((state) => {

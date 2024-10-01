@@ -81,7 +81,7 @@ const useAction = () => {
 						})
 						getList(token);
 						return;
-					case "removeitem"
+					case "removeitem":
 						dispatch({
 							type:actionConstants.REMOVE_ITEM_SUCCESS
 						})
@@ -283,7 +283,7 @@ const useAction = () => {
 		})
 	}
 	
-	return {add,remove,edit,register,login,logout,setError}
+	return {getList,add,remove,edit,register,login,logout,setError}
 }
 
 export default useAction;

@@ -1,6 +1,5 @@
-import {useEffect} from 'react';
-import useAction from './hooks/useAction';
-import useAppState from './hooks/useAppState';
+import {useSelector} from 'react-redux';
+import {ApplicationState} from './types/states';
 import ShoppingForm from './components/ShoppingForm';
 import ShoppingList from './components/ShoppingList';
 import Navbar from './components/Navbar';
@@ -9,24 +8,29 @@ import {Routes,Route,Navigate} from 'react-router-dom';
 
 function App() {
 	
-	const {getList} = useAction();
-	
-	const {loading,error,isLogged,token} = useAppState();
-	
-	useEffect(() => {
-		if(isLogged) {
-			getList(token);
+	const stateSelector = (state:ApplicationState) => {
+		let error = state.shopping.error;
+		if(state.login.error) {
+			error = state.login.error
 		}
-	},[isLogged])
+		return {
+			loading:state.login.loading,
+			error:error,
+			isLogged:state.login.isLogged
+		}
+	}
+	
+	const state = useSelector(stateSelector);
+	
 	
 	let messageArea = <h4 style={{height:50,textAlign:"center"}}></h4>
-	if(loading) {
+	if(state.loading) {
 		messageArea = <h4 style={{height:50,textAlign:"center"}}>Loading ...</h4>
 	}
-	if(error) {
-		messageArea = <h4 style={{height:50,textAlign:"center"}}>{error}</h4>
+	if(state.error) {
+		messageArea = <h4 style={{height:50,textAlign:"center"}}>{state.error}</h4>
 	}
-	if(isLogged) {
+	if(state.isLogged) {
 		return (
 			<>
 				<Navbar />

@@ -3,8 +3,11 @@ import ShoppingItem from '../models/ShoppingItem';
 import Row from './Row';
 import RemoveRow from './RemoveRow';
 import EditRow from './EditRow';
-import useAction from '../hooks/useAction';
-import useAppState from '../hooks/useAppState';
+import {useDispatch,useSelector} from 'react-redux';
+import Action from '../types/Action';
+import {ThunkDispatch} from 'redux-thunk';
+import {remove,edit,getList} from '../actions/shoppingActions';
+import {ApplicationState} from '../types/states';
 
 interface State {
 	removeIndex:number;
@@ -25,8 +28,16 @@ const ShoppingList = () => {
 		search:""
 	})
 	
-	const {list,token} = useAppState();
-	const {remove,edit,getList} = useAction();
+	const dispatch:ThunkDispatch<ApplicationState,null,Action> = useDispatch();
+	const appStateSelector = (state:ApplicationState) => {
+		return {
+			list:state.shopping.list,
+			token:state.login.token
+		}
+	}
+	
+	const appState = useSelector(appStateSelector);
+
 	
 	const changeMode = (mode:string,index:number) => {
 		switch(mode) {
@@ -54,7 +65,7 @@ const ShoppingList = () => {
 	}
 	
 	const searchByType = () => {
-		getList(token,searchState.search);
+		dispatch(getList(appState.token,searchState.search));
 		setSearchState({
 			search:""
 		})
@@ -67,16 +78,16 @@ const ShoppingList = () => {
 	}
 	
 	const removeItem = (id:string) => {
-		remove(id);
+		dispatch(remove(appState.token,id));
 		changeMode("cancel",0);
 	}
 	
 	const editItem = (item:ShoppingItem) => {
-		edit(item);
+		dispatch(edit(appState.token,item));
 		changeMode("cancel",0);
 	}
 	
-	const shoppingItems = list.map((item,index) => {
+	const shoppingItems = appState.list.map((item,index) => {
 		if(state.removeIndex === index) {
 			return (
 				<RemoveRow key={item.id} item={item} changeMode={changeMode} removeItem={removeItem}/>

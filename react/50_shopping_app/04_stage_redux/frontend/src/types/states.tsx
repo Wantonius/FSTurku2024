@@ -2,15 +2,6 @@ import ShoppingItem from '../models/ShoppingItem';
 import {Reducer} from 'redux';
 import Action from './Action';
 
-//Old App State - To be removed later
-export interface AppState {
-	list:ShoppingItem[];
-	isLogged:boolean;
-	token:string;
-	loading:boolean;
-	error:string;
-	user:string;
-}
 
 export interface ShoppingState {
 	list:ShoppingItem[];

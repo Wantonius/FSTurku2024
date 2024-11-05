@@ -1,13 +1,14 @@
 import {loading,stopLoading,logoutFailed} from './loginActions';
 import ShoppingItem from '../models/ShoppingItem';
-import {AnyAction} from 'redux';
+import Action from '../types/Action';
+import {ApplicationState} from '../types/states';
 import {ThunkDispatch} from 'redux-thunk';
 import * as actionConstants from '../types/actionConstants';
 
 //ASYNC THUNKS
 
 export const getList = (token:string,search?:string) => {
-	return (dispatch:ThunkDispatch<any,any,AnyAction>) => {
+	return (dispatch:ThunkDispatch<ApplicationState,null,Action>) => {
 		let url = "/api/shopping";
 		if(search) {
 			url = url+"?type="+search
@@ -23,7 +24,7 @@ export const getList = (token:string,search?:string) => {
 }
 
 export const add = (token:string,item:ShoppingItem) => {
-	return (dispatch:ThunkDispatch<any,any,AnyAction>) => {
+	return (dispatch:ThunkDispatch<ApplicationState,null,Action>) => {
 		let request = new Request("/api/shopping",{
 			method:"POST",
 			headers:{
@@ -37,31 +38,31 @@ export const add = (token:string,item:ShoppingItem) => {
 }
 
 export const remove = (token:string,id:string) => {
-	return (dispatch:ThunkDispatch<any,any,AnyAction>) => {
+	return (dispatch:ThunkDispatch<ApplicationState,null,Action>) => {
 		let request = new Request("/api/shopping/"+id,{ 
 			method:"DELETE",
 			headers:{
 				"token":token
 			}
 		})
-	handleFetch(request,"removeitem",dispatch,token);
+		handleFetch(request,"removeitem",dispatch,token);
+	}
 }
-
 export const edit = (token:string,item:ShoppingItem) => {
-	return (dispatch:ThunkDispatch<any,any,AnyAction>) => {
+	return (dispatch:ThunkDispatch<ApplicationState,null,Action>) => {
 		let request = new Request("/api/shopping/"+item.id,{
 			method:"PUT",
 			headers:{
 				"Content-Type":"application/json",
 				"token":token
-			}
+			},
 			body:JSON.stringify(item)
 		})
-	handleFetch(request,"edititem",dispatch,token);
+		handleFetch(request,"edititem",dispatch,token);
+	}
 }
 
-
-const handleFetch = async (request:Request,act:string,dispatch:ThunkDispatch<any,any,AnyAction>,token:string) => {
+const handleFetch = async (request:Request,act:string,dispatch:ThunkDispatch<ApplicationState,null,Action>,token:string) => {
 	dispatch(loading());
 	const response = await fetch(request);
 	dispatch(stopLoading());
@@ -81,15 +82,15 @@ const handleFetch = async (request:Request,act:string,dispatch:ThunkDispatch<any
 				dispatch(fetchListSuccess(list));
 				return;
 			case "additem":
-				dispatch(handleShoppingSuccess(actionConstants.ADD_ITEM_SUCCESS);
+				dispatch(handleShoppingSuccess(actionConstants.ADD_ITEM_SUCCESS));
 				dispatch(getList(token));
 				return;
 			case "removeitem":
-				dispatch(handleShoppingSuccess(actionConstants.REMOVE_ITEM_SUCCESS);
+				dispatch(handleShoppingSuccess(actionConstants.REMOVE_ITEM_SUCCESS));
 				dispatch(getList(token));
 				return;
 			case "edititem":
-				dispatch(handleShoppingSuccess(actionConstants.EDIT_ITEM_SUCCESS);
+				dispatch(handleShoppingSuccess(actionConstants.EDIT_ITEM_SUCCESS));
 				dispatch(getList(token));
 				return;
 			default:
@@ -126,14 +127,14 @@ const handleFetch = async (request:Request,act:string,dispatch:ThunkDispatch<any
 const fetchListSuccess = (list:ShoppingItem[]) => {
 	return {
 		type:actionConstants.FETCH_LIST_SUCCESS,
-		list:list
+		payload:list
 	}
 }
 
 const fetchListFailed = (error:string) => {
 	return {
-		tyoe:actionConstants.FETCH_LIST_FAILED,
-		error:error
+		type:actionConstants.FETCH_LIST_FAILED,
+		payload:error
 	}
 }
 
@@ -146,6 +147,6 @@ const handleShoppingSuccess = (type:string) => {
 const handleShoppingFailed = (type:string,error:string) => {
 	return {
 		type:type,
-		error:error
+		payload:error
 	}
 }

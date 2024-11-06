@@ -32,7 +32,7 @@ export const remove = createAsyncThunk("remove", async (id:number, thunkAPI) => 
 	const request = new Request("/api/shopping/"+id,{
 		method:"DELETE"
 	})
-	const resposne = await fetch(request);
+	const response = await fetch(request);
 	if(response.ok) {
 		thunkAPI.dispatch(getList());
 	}

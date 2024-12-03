@@ -5,7 +5,7 @@ const GreetingForm = (props) => {
 	
 	const [state,setState] = useState({
 		firstname:"",
-		lastname:""
+		lastname:"",
 		textColor:"",
 		backgroundColor:""
 	})

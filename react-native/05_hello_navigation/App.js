@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import GreetingForm from './components/GreetingForm';
+import GreetingPage from './components/GreetingPage';
+import {useState} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+	
+	const [state,setState] = useState({
+		firstname:"",
+		lastname:"",
+		textColor:"",
+		backgroundColor:""
+	})
+	
+	const setGreeting = (data) => {
+		setState({
+			firstname:data.firstname,
+			lastname:data.lastname,
+			textColor:data.textColor.toLowerCase(),
+			backgroundColor:data.backgroundColor.toLowerCase()
+		})
+	}
+	
+	return (
+		<NavigationContainer>
+			<Stack.Navigator>
+				<Stack.Screen name="GreetingForm">
+				{props => <GreetingForm {...props} setGreeting={setGreeting}/>}
+				</Stack.Screen>
+				<Stack.Screen name="GreetingPage">
+				{props => <GreetingPage {...props} {...state}/>}
+				</Stack.Screen>
+			</Stack.Navigator>
+		</NavigationContainer>
+	);
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+

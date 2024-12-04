@@ -17,7 +17,162 @@ const useAction = () => {
 	
 	const baseUrl = "https://cautious-fishstick-y5hp.onrender.com"
 	
-	useEffect(() => {},[urlRequest])
+	useEffect(() => {
+		
+		const fetchData = async () => {
+			if(urlRequest.action === "changemode") {
+				dispatch({
+					type:actionConstants.CHANGE_MODE,
+					mode:urlRequest.request.mode,
+					editable:urlRequest.request.editable
+				})
+				return;
+			}
+			dispatch({
+				type:actionConstants.LOADING
+			})
+			let url = baseUrl + urlRequest.url;
+			const response = await fetch(url,urlRequest.request);
+			dispatch({
+				type:actionConstants.STOP_LOADING
+			})
+			if(!response) {
+				dispatch({
+					type:actionConstants.LOGOUT
+				})
+				return;
+			}
+			if(response.ok) {
+				switch(urlRequest.action) {
+					case "register":
+						dispatch({
+							type:actionConstants.REGISTER_SUCCESS
+						})
+						return;
+					case "login":
+						const data = await response.json();
+						if(!data) {
+							dispatch({
+								type:actionConstants.LOGIN_FAILED,
+								error:"Failed to parse login information"
+							})
+							return;
+						}
+						dispatch({
+							type:actionConstants.LOGIN_SUCCESS,
+							token:data.token
+						})
+						return;
+					case "logout":
+						dispatch({
+							type:actionConstants.LOGOUT
+						})
+						return;
+					case "getlist":
+						const list = await response.json();
+						if(!list) {
+							dispatch({
+								type:actionConstants.FETCH_LIST_FAILED,
+								error:"Failed to parse shopping information"
+							})
+							return;
+						}
+						dispatch({
+							type:actionConstants.FETCH_LIST_SUCCESS,
+							list:list
+						})
+						return;
+					case "additem":
+						dispatch({
+							type:actionConstants.ADD_ITEM_SUCCESS
+						})
+						getList();
+						return;
+					case "removeitem":
+						dispatch({
+							type:actionConstants.REMOVE_ITEM_SUCCESS
+						})
+						getList();
+						return;
+					case "edititem":
+						dispatch({
+							type:actionConstants.ADD_ITEM_SUCCESS
+						})
+						getList();
+						changeMode("Add",{
+							_id:"",
+							type:"",
+							count:"",
+							price:""
+						})
+						return;
+					default:
+						return;
+				}
+			} else {
+				if(response.status === 403) {
+					dispatch({
+						type:actionConstants.LOGOUT
+					})
+					return;
+				}
+				let errorMessage = "Server responded with a status "+response.status
+				switch(urlRequest.action) {
+					case "register":
+						if(response.status === 409) {
+							errorMessage = "Username already in use"
+						}
+						dispatch({
+							type:actionConstants.REGISTER_FAILED,
+							error:errorMessage
+						})
+						return;
+					case "logout":
+						dispatch({
+							type:actionConstants.LOGOUT
+						})
+						return;
+					case "login":
+						dispatch({
+							type:actionConstants.LOGIN_FAILED,
+							error:errorMessage
+						})
+						return;
+					case "getlist":
+						dispatch({
+							type:actionConstants.FETCH_LIST_FAILED,
+							error:errorMessage
+						})
+						return;
+					case "additem":
+						dispatch({
+							type:actionConstants.ADD_ITEM_FAILED,
+							error:errorMessage
+						})
+						return;
+					case "removeitem":
+						dispatch({
+							type:actionConstants.REMOVE_ITEM_FAILED,
+							error:errorMessage
+						})
+						return;
+					case "edititem":
+						dispatch({
+							type:actionConstants.EDIT_ITEM_FAILED,
+							error:errorMessage
+						})
+						return;
+					default:
+						return;
+							
+				}
+				
+			}
+		}
+		
+		fetchData();
+		
+	},[urlRequest])
 	
 	//LOGIN API
 	

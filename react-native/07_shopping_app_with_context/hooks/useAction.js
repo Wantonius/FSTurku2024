@@ -96,7 +96,7 @@ const useAction = () => {
 						return;
 					case "edititem":
 						dispatch({
-							type:actionConstants.ADD_ITEM_SUCCESS
+							type:actionConstants.EDIT_ITEM_SUCCESS
 						})
 						getList();
 						changeMode("Add",{

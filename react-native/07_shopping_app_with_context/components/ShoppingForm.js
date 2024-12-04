@@ -3,7 +3,7 @@ import {View,Text,TextInput,Pressable,StyleSheet} from 'react-native';
 import useAppState from '../hooks/useAppState';
 import useAction from '../hooks/useAction';
 
-const ShoppingForm = (props) => {
+const ShoppingForm = (props) => {	
 	
 	const [state,setState] = useState({
 		type:"",
